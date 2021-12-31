@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
-//import logo from '../logo.png';
 import './App.css';
 import Web3 from 'web3';
-//import web3 from '../ethereum/web3';
 import contractInfo from '../abis/Main.json';
+//import logo from '../logo.png';
 
 class App extends Component {
 
@@ -159,7 +158,7 @@ class App extends Component {
                   //const parsedPrice = parseFloat(price).toString()
                   //const weis = window.web3.utils.toWei(parsedPrice, 'ether')
                   
-                  this.sendTokens(address, price, quantity)
+                  await this.sendTokens(address, price, quantity)
                 }}>
                   <input type='text' className='form-control mb-1' placeholder='To Address' ref={(input) => this.address = input} />
                   <input type='text' className='form-control mb-1' placeholder='Quantity (1 Token = 1 Ether)' ref={(input) => this.quantity = input} />
