@@ -2,7 +2,7 @@ require('babel-register');
 require('babel-polyfill');
 
 var HDWalletProvider = require('truffle-hdwallet-provider')
-var mnemonic = 'square mercy fiscal lunar helmet easily hurt dove power barrel adult detect'
+var mnemonic = ''
 
 module.exports = {
   networks: {
@@ -21,7 +21,7 @@ module.exports = {
         return new HDWalletProvider(mnemonic, 'https://rinkeby.infura.io/v3/c405b2fb692342baa5aa60e7fd5ea97b')
       },
       network_id: 4,
-      gas: 4500000,
+      gas: 21000,
       gasPrice: 10000000000
     },
 

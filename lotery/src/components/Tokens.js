@@ -264,7 +264,7 @@ class Tokens extends Component {
                         value='GENERATE TOKENS'/>
                 </form>
 
-                <h3> <Icon circular inverted color='blue' name='bitcoin' /> Return Tokens</h3>
+                <h3> <Icon circular inverted color='blue' name='ethereum' /> Return Tokens</h3>
 
                 <form onSubmit={async (event) => {
                         event.preventDefault()
