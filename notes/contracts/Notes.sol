@@ -31,6 +31,10 @@ contract Notes {
     event student_evaluated(bytes32);
     event revision_asked(string);
     
+    function GetStudentHash(string memory _subject, string memory _id) private pure returns(bytes32) {
+        return keccak256(abi.encodePacked(_subject, _id));
+    }
+
     // Modifiers
     
     // Control of the functions that are executable by the teacher
@@ -42,7 +46,7 @@ contract Notes {
     
     // Check that the student has been evaluated
     modifier StudentEvaluated(string memory _subject, string memory _student_id) {
-        bytes32 student_id_hash = keccak256(abi.encodePacked(_subject, _student_id));
+        bytes32 student_id_hash = GetStudentHash(_subject, _student_id);
         uint student_note = notes[student_id_hash];
         
         require(student_note > 0, "The student has not been evaluated");
@@ -52,7 +56,7 @@ contract Notes {
     // Function to evaluate students
     function Evaluate(string memory _subject, string memory _id, uint _note) public OnlyTeacher(msg.sender) {
         // Student's Id hash
-        bytes32 student_id_hash = keccak256(abi.encodePacked(_subject, _id));
+        bytes32 student_id_hash = GetStudentHash(_subject, _id);
         
         // Relation between the student's hash and his note
         notes[student_id_hash] = _note;
@@ -63,7 +67,7 @@ contract Notes {
     
     // Function to see a student's notes
     function SeeNotes(string memory _subject, string memory _student_id) public view StudentEvaluated(_subject, _student_id) returns(uint) {
-        bytes32 student_id_hash = keccak256(abi.encodePacked(_subject, _student_id));
+        bytes32 student_id_hash = GetStudentHash(_subject, _student_id);
         
         // Asociated note to the student's hash
         uint student_note = notes[student_id_hash];
