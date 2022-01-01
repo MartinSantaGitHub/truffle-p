@@ -122,7 +122,7 @@ contract Lotery {
 
     // Events
     event bought_ticket(uint, address);
-    event winner_ticket(uint, address, uint);
+    event winner_ticket(uint election, address winner, uint tokens);
 
     // Function to buy lotery's tickets
     function BuyTickets(uint _tickets_number) public NotBy(msg.sender) {

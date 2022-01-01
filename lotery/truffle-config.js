@@ -2,13 +2,16 @@ require('babel-register');
 require('babel-polyfill');
 
 var HDWalletProvider = require('truffle-hdwallet-provider')
-var mnemonic = ''
+var mnemonic = 'square mercy fiscal lunar helmet easily hurt dove power barrel adult detect'
 
 module.exports = {
   networks: {
 
     // Ganache
     development: {
+      // provider: function(){
+      //   return new HDWalletProvider(mnemonic, 'HTTP://127.0.0.1:7545')
+      // },
       host: "127.0.0.1",
       port: 7545,
       network_id: "*", // Match any network id
