@@ -2,7 +2,7 @@ require('babel-register');
 require('babel-polyfill');
 
 var HDWalletProvider = require('truffle-hdwallet-provider')
-var mnemonic = 'square mercy fiscal lunar helmet easily hurt dove power barrel adult detect'
+var mnemonic = ''
 
 module.exports = {
   networks: {
