@@ -94,48 +94,51 @@ contract Lotery {
 
     // Ticket's price
     uint public ticket_price = 500;
-
     // Total tickets
-    uint total_tickets = 10;
-
+    uint total_tickets = 100;
     // Tickets digits
     uint tickets_digits = 8;
-
     // Percent to the winner
     uint winner_percent = 75;
-
+    // Minimum quantity of persons 
+    uint minimun_quantity = 4;
     address winner_address;
+
+    address[] persons;
+    // Generated tickets
+    uint[] bought_tickets;
 
     // Relation between the person who buy the tickets and the tickets' numbers
     mapping(address => uint[]) person_tickets;
-
-    address[] persons;
-
     // Relation needed to identify the winner
     mapping(uint => address) ticket_person;
+    mapping(address => uint) person_tokens;
 
     // Random number
     uint rand_nonce = 0;
 
-    // Generated tickets
-    uint[] bought_tickets;
-
     // Events
     event bought_ticket(uint, address);
     event winner_ticket(uint election, address winner, uint tokens);
+    event returned_not_played_tokens(uint, address);
 
     // Function to buy lotery's tickets
-    function BuyTickets(uint _tickets_number) public NotBy(msg.sender) {
+    function BuyTickets(uint _tickets_number, address[] memory _persons) public NotBy(msg.sender) {
         require(_tickets_number > 0, "Enter a ticket number positive value");
         require(bought_tickets.length < total_tickets, "There's no more tickets to buy");
         uint available_tickets = total_tickets - bought_tickets.length;
         require(_tickets_number <= available_tickets, string(abi.encodePacked("Only ", available_tickets.uint2str(), " ticket(s) left")));
         // Total tickets' price to buy
+        
         uint total_tokens = _tickets_number * ticket_price;
         require(total_tokens <= BalanceOf(msg.sender), "You need more tokens");
 
         // Tokens transfer to the owner
         token.transfer(msg.sender, owner_address, total_tokens);
+        
+        if (_persons.length < minimun_quantity) {
+            person_tokens[msg.sender] += total_tokens;
+        }
         
         /*
         What this does is to take the timestamp, the msg.sender and a nonce (a number
@@ -173,10 +176,6 @@ contract Lotery {
     }
 
     function DeleteData(address[] memory _persons) private {
-        for (uint i=0; i < bought_tickets.length; i++) {
-            delete ticket_person[bought_tickets[i]];
-        }
-
         for (uint i=0; i < _persons.length; i++) {
             delete person_tickets[_persons[i]];
         }
@@ -189,7 +188,7 @@ contract Lotery {
     function GenerateWinner(address[] memory _persons) public OnlyBy(msg.sender) {
         // Must be bought tickets to generate a winner
         require(bought_tickets.length > 0, "There's no tickets");
-        require(_persons.length > 1, "Minimum quantity of persons not reached");
+        require(_persons.length >= minimun_quantity, "Minimum quantity of persons not reached");
         uint array_length = bought_tickets.length;
         uint position = uint(uint(keccak256(abi.encodePacked(now))) % array_length);
         uint election = bought_tickets[position];
@@ -199,6 +198,20 @@ contract Lotery {
         uint tokens_bucket = winner_percent * TokensBucket() / 100;
         token.transfer(owner_address, winner_address, tokens_bucket);
         emit winner_ticket(election, winner_address, tokens_bucket);
+        DeleteData(_persons);
+    }
+
+    function ReturnNotPlayedTokens(address[] memory _persons) public OnlyBy(msg.sender) {
+        require(_persons.length < minimun_quantity, "Minimum quantity of persons reached");
+
+        for (uint i = 0; i < _persons.length ;i++) {
+            address person_address = _persons[i];
+            uint tokens_number = person_tokens[person_address];
+            require(tokens_number > 0, "You need to return a positive number of tokens");
+            token.transfer(owner_address, person_address, tokens_number);
+            emit returned_not_played_tokens(tokens_number, person_address);
+        }
+
         DeleteData(_persons);
     }
 }

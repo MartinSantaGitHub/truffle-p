@@ -69,7 +69,11 @@ class Awards extends Component {
             console.log('owner', this.state.owner)
 
             contractWebSocket.events.winner_ticket().on('data', (event) => {
-                this.setState((prevState) => ({...prevState, winner: event.returnValues.winner}))
+                this.setState((prevState) => ({ ...prevState, winner: event.returnValues.winner }))
+            })
+
+            contractWebSocket.events.returned_not_played_tokens().on('data', (event) => {
+                alert('Not played tokens returned!!!')
             })
 
         } else {
@@ -108,6 +112,18 @@ class Awards extends Component {
     getWinner = async () => {
         try {
             return await this.state.contract.methods.GetWinner().call()
+        } catch (error) {
+            this.setState({ errorMessage: error.message })
+        } finally {
+            this.setState({ loading: false })
+        }
+    }
+
+    returnNotPlayedTokens = async (uniquePersons) => {
+        try {
+            const web3 = window.web3
+            const accounts = await web3.eth.getAccounts()
+            await this.state.contract.methods.ReturnNotPlayedTokens(uniquePersons).send({ from: accounts[0] })
         } catch (error) {
             this.setState({ errorMessage: error.message })
         } finally {
@@ -183,7 +199,7 @@ class Awards extends Component {
 
                                     if (winner_address !== '0x0000000000000000000000000000000000000000') {
                                         console.log(winner_address)
-                                        this.setState((prevState) => ({...prevState, winner: winner_address}));
+                                        this.setState((prevState) => ({ ...prevState, winner: winner_address }));
                                     }
                                 }
                                 }>
@@ -191,6 +207,22 @@ class Awards extends Component {
                                     <input type="submit"
                                         className='btn btn-block btn-info btn-sm'
                                         value='SEE WINNER' />
+                                </form>
+
+                                <h3> <Icon circular inverted color='yellow' name='bitcoin' /> Return Not Played Tokens</h3>
+                                
+                                <form onSubmit={async (event) => {
+                                    event.preventDefault()
+                                    const persons = await this.state.contract.methods.GetPersons().call()
+                                    const uniquePersons = [...new Set(persons)]
+                                    await this.returnNotPlayedTokens(uniquePersons)
+                                }
+                                }>
+
+                                    {/* <input type='text' className='form-control mb-1' disabled="disabled" ref={(input) => {this.winner = input}} /> */}
+                                    <input type="submit"
+                                        className='btn btn-block btn-warning btn-sm'
+                                        value='RETURN NOT PLAYED TOKENS' />
                                 </form>
                             </div>
                         </main>

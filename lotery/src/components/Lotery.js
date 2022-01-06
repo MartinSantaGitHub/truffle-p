@@ -99,11 +99,11 @@ class Lotery extends Component {
         }
     }
 
-    buyTickets = async (ticketsNumber) => {
+    buyTickets = async (ticketsNumber, uniquePersons) => {
         try {
             const web3 = window.web3
             const accounts = await web3.eth.getAccounts()
-            await this.state.contract.methods.BuyTickets(ticketsNumber).send({ from: accounts[0] })
+            await this.state.contract.methods.BuyTickets(ticketsNumber, uniquePersons).send({ from: accounts[0] })
             alert('Good Luck!')
         } catch (error) {
             this.setState({ errorMessage: error.message })
@@ -199,7 +199,9 @@ class Lotery extends Component {
                                 <form onSubmit={async (event) => {
                                     event.preventDefault()
                                     const quantity = this.tickets_quantity.value
-                                    await this.buyTickets(quantity)
+                                    const persons = await this.state.contract.methods.GetPersons().call()
+                                    const uniquePersons = [...new Set(persons)]
+                                    await this.buyTickets(quantity, uniquePersons)
                                 }
                                 }>
 
